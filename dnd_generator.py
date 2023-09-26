@@ -127,7 +127,11 @@ def execute_loop(iterations):
 
         # population info
         population = int(merged_df['Population'].at[index_loc])
-        original_population = int(pop_file['Population (2020)'].loc[pop_file['Country (or dependency)']==country])
+        original_population = pop_file['Population (2020)'].loc[pop_file['Country (or dependency)']==country]
+
+        original_population = int(original_population.iloc[0])
+
+        print(original_population)
 
 
         # display results
@@ -168,6 +172,5 @@ def execute_loop(iterations):
         print(json_string)
         # print(f"--- {percent_loss} ---")
 
-        return json_string
     
 execute_loop(100)

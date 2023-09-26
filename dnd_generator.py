@@ -74,6 +74,7 @@ def get_continent(Nominatim=Nominatim):
 
     return country, continent
 
+
 ###
 
 # Group continents into 6 categories, Americas (N & S), Europe, Africa, Asia, Australasia & Antarctica.
@@ -87,7 +88,7 @@ continent_dict = {cc_file['Continent'].unique()[i]: mod[i] for i in range(len(mo
 
 # create monster damage based on continent
 
-def create_monster_damage(file=file, continent_dict=continent_dict, continent=continent):
+def create_monster_damage(continent, file=file, continent_dict=continent_dict):
     rand_monster = file.sample()
     monster_name = rand_monster['name'].iloc[0]
 
@@ -111,12 +112,12 @@ from threading import Thread
 for i in range(8):
     # time delay
     time.sleep(1)
-
-    # unpack monster info
-    monster_name, damage = create_monster_damage()
-
     # unpack country info
     country, continent = get_continent()
+
+    # unpack monster info
+    monster_name, damage = create_monster_damage(continent)
+
     # country, continent = "Canada", "North America"
 
     # Update the main DF in order to keep track of running casualties in countries.

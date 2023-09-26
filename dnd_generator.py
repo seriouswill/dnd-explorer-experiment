@@ -108,60 +108,61 @@ import json
 import datetime
 from threading import Thread
 
+def execute_loop(iterations):
+    for i in range(iterations):
+        # time delay
+        time.sleep(1)
+        # unpack country info
+        country, continent = get_continent()
 
-for i in range(8):
-    # time delay
-    time.sleep(1)
-    # unpack country info
-    country, continent = get_continent()
+        # unpack monster info
+        monster_name, damage = create_monster_damage(continent)
 
-    # unpack monster info
-    monster_name, damage = create_monster_damage(continent)
+        # country, continent = "Canada", "North America"
 
-    # country, continent = "Canada", "North America"
+        # Update the main DF in order to keep track of running casualties in countries.
+        index_loc = merged_df.loc[merged_df['Country']==country].index[0]
 
-    # Update the main DF in order to keep track of running casualties in countries.
-    index_loc = merged_df.loc[merged_df['Country']==country].index[0]
-
-    # population info
-    population = int(merged_df['Population'].at[index_loc])
+        # population info
+        population = int(merged_df['Population'].at[index_loc])
 
 
-    # display results
-    # print(f"Country: {country}, \nPopulation: {population}, \nMonster: {monster_name.upper()}, \nDamage: {damage} \nUpdated Population: {population - damage}, \nPercent Population Lost: {percent_loss}\n\n---\n")
+        # display results
+        # print(f"Country: {country}, \nPopulation: {population}, \nMonster: {monster_name.upper()}, \nDamage: {damage} \nUpdated Population: {population - damage}, \nPercent Population Lost: {percent_loss}\n\n---\n")
 
-    # \|/ BELOW IS THE CORRECT WAY TO AMEND VALUES IN A DATAFRAME \|/
+        # \|/ BELOW IS THE CORRECT WAY TO AMEND VALUES IN A DATAFRAME \|/
 
-    # need to catch minus population numbers 
-    if population - damage < 0:
-        updated_population = 0
-        merged_df.at[index_loc, 'Population'] = 0
-    else:
-        updated_population = population - damage
-        merged_df.at[index_loc, 'Population'] -= damage
+        # need to catch minus population numbers 
+        if population - damage < 0:
+            updated_population = 0
+            merged_df.at[index_loc, 'Population'] = 0
+        else:
+            updated_population = population - damage
+            merged_df.at[index_loc, 'Population'] -= damage
 
-    # print(f"Pop: {population}")
-    # print(f"UpPop: {updated_population}")
+        # print(f"Pop: {population}")
+        # print(f"UpPop: {updated_population}")
+        
+        # calculate percentage population loss !!! CATCH percentages greater than 100
+        percent_loss = round(damage / population * 100, 3)
+        if percent_loss > 100:
+            percent_loss = 100
+
+        # structure data for stream
+        data = {
+            "country": country,
+            "population": population,
+            "monster_name": monster_name.upper(),
+            "damage": damage,
+            "updated_population": int(updated_population),
+            "percent_loss": percent_loss,
+            "ts": str(datetime.datetime.now())
+        }
+        # jsonify
+        json_string = json.dumps(data)
+        print(json_string)
+        # print(f"--- {updated_population} ---")
+
+        time.sleep(1)
     
-    # calculate percentage population loss !!! CATCH percentages greater than 100
-    percent_loss = round(damage / population * 100, 3)
-    if percent_loss > 100:
-        percent_loss = 100
-
-    # structure data for stream
-    data = {
-        "country": country,
-        "population": population,
-        "monster_name": monster_name.upper(),
-        "damage": damage,
-        "updated_population": int(updated_population),
-        "percent_loss": percent_loss,
-        "ts": str(datetime.datetime.now())
-    }
-    # jsonify
-    json_string = json.dumps(data)
-    print(json_string)
-    # print(f"--- {updated_population} ---")
-
-    time.sleep(1)
- 
+# execute_loop(2)

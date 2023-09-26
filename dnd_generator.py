@@ -145,9 +145,13 @@ def execute_loop(iterations):
 
         
         # calculate percentage population loss !!! CATCH percentages greater than 100
-        percent_loss = round((original_population - updated_population) / population * 100, 3)
-        if percent_loss > 100:
-            percent_loss = 100
+        try:
+            percent_loss = round((original_population - updated_population) / population * 100, 3)
+            if percent_loss > 100:
+                percent_loss = 100
+        except:
+            if population < 1:
+                percent_loss = 100
 
         # structure data for stream
         data = {
@@ -163,5 +167,7 @@ def execute_loop(iterations):
         json_string = json.dumps(data)
         print(json_string)
         # print(f"--- {percent_loss} ---")
+
+        return json_string
     
 execute_loop(100)

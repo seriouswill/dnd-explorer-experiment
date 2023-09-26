@@ -115,8 +115,8 @@ def execute_loop(iterations):
         time.sleep(1)
         
         # unpack country info
-        # country, continent = get_continent()
-        country, continent = "Canada", "North America"
+        country, continent = get_continent()
+        # country, continent = "Canada", "North America"
 
         # unpack monster info
         monster_name, damage = create_monster_damage(continent)
@@ -161,7 +161,7 @@ def execute_loop(iterations):
         }
         # jsonify
         json_string = json.dumps(data)
-        # print(json_string)
-        print(f"--- {percent_loss} ---")
+        print(json_string)
+        # print(f"--- {percent_loss} ---")
     
-execute_loop(10)
+execute_loop(100)

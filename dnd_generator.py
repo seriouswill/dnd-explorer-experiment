@@ -1,5 +1,16 @@
+# regular libraries
 import pandas as pd
 import random
+import time
+import json
+import datetime
+from threading import Thread
+
+# geo libraries and certificate ssl stuff
+import certifi
+import ssl
+import geopy.geocoders
+from geopy.geocoders import Nominatim
 
 file = pd.read_csv("./dnd_monsters.csv")
 cc_file = pd.read_csv("./countries_continents.csv")
@@ -12,8 +23,6 @@ size_dict = {"Tiny":0.5,
     "Gargantuan":5
     }
 
-# file.iloc[random.randint(0, 200)]['hp']
-
 # sort out missing values for dex con int etc
 file = file.fillna(random.randint(0, 5))
 
@@ -24,7 +33,6 @@ file['size_multiplier'] = file['size'].map(size_dict)
 D20 = random.randint(0, 20)
 
 # get population and continent info ( i combined two csvs )
-
 pop_file = pd.read_csv("./population_by_country_2020.csv")
 
 pop_file = pop_file[
@@ -42,16 +50,12 @@ merged_df.pop('Population (2020)')
 
 # Establish geopy locator and function
 
-import certifi
-import ssl
-import geopy.geocoders
-from geopy.geocoders import Nominatim
-import random
+
 ctx = ssl.create_default_context(cafile=certifi.where())
 geopy.geocoders.options.default_ssl_context = ctx
+geolocator = Nominatim(user_agent="my_geocoder")
 
-def get_continent(Nominatim=Nominatim):
-    geolocator = Nominatim(user_agent="my_geocoder")
+def get_continent(geolocator=geolocator):
 
     land = False
     while land != True:
@@ -103,28 +107,27 @@ def create_monster_damage(continent, file=file, continent_dict=continent_dict):
 
 # Emulate a continuous stream of monsters being generated.
 
-import time
-import json
-import datetime
-from threading import Thread
+
 
 def execute_loop(iterations):
     for i in range(iterations):
         # time delay
         time.sleep(1)
+        
         # unpack country info
-        country, continent = get_continent()
+        # country, continent = get_continent()
+        country, continent = "Canada", "North America"
 
         # unpack monster info
         monster_name, damage = create_monster_damage(continent)
 
-        # country, continent = "Canada", "North America"
 
         # Update the main DF in order to keep track of running casualties in countries.
         index_loc = merged_df.loc[merged_df['Country']==country].index[0]
 
         # population info
         population = int(merged_df['Population'].at[index_loc])
+        original_population = int(pop_file['Population (2020)'].loc[pop_file['Country (or dependency)']==country])
 
 
         # display results
@@ -135,16 +138,14 @@ def execute_loop(iterations):
         # need to catch minus population numbers 
         if population - damage < 0:
             updated_population = 0
-            merged_df.at[index_loc, 'Population'] = 0
+            merged_df.loc[index_loc, 'Population'] = 0
         else:
             updated_population = population - damage
-            merged_df.at[index_loc, 'Population'] -= damage
+            merged_df.loc[index_loc, 'Population'] -= damage
 
-        # print(f"Pop: {population}")
-        # print(f"UpPop: {updated_population}")
         
         # calculate percentage population loss !!! CATCH percentages greater than 100
-        percent_loss = round(damage / population * 100, 3)
+        percent_loss = round((original_population - updated_population) / population * 100, 3)
         if percent_loss > 100:
             percent_loss = 100
 
@@ -160,9 +161,7 @@ def execute_loop(iterations):
         }
         # jsonify
         json_string = json.dumps(data)
-        print(json_string)
-        # print(f"--- {updated_population} ---")
-
-        time.sleep(1)
+        # print(json_string)
+        print(f"--- {percent_loss} ---")
     
-# execute_loop(2)
+execute_loop(10)

@@ -112,7 +112,7 @@ def create_monster_damage(continent, file=file, continent_dict=continent_dict):
 def execute_loop(iterations):
     for i in range(iterations):
         # time delay
-        time.sleep(1)
+        time.sleep(2)
         
         # unpack country info
         country, continent = get_continent()
@@ -169,6 +169,4 @@ def execute_loop(iterations):
         json_string = json.dumps(data)
         print(json_string)
         # print(f"--- {percent_loss} ---")
-
-    
-execute_loop(10)
+        return json_string

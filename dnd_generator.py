@@ -131,8 +131,6 @@ def execute_loop(iterations):
 
         original_population = int(original_population.iloc[0])
 
-        print(original_population)
-
 
         # display results
         # print(f"Country: {country}, \nPopulation: {population}, \nMonster: {monster_name.upper()}, \nDamage: {damage} \nUpdated Population: {population - damage}, \nPercent Population Lost: {percent_loss}\n\n---\n")
@@ -173,4 +171,4 @@ def execute_loop(iterations):
         # print(f"--- {percent_loss} ---")
 
     
-execute_loop(100)
+execute_loop(10)

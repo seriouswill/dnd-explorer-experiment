@@ -170,5 +170,4 @@ def execute_loop(iterations):
         print(json_string)
         # print(f"--- {percent_loss} ---")
 
-
-execute_loop(4) 
+        return json_string

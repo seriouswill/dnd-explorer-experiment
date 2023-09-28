@@ -12,10 +12,10 @@ aws_access_key_id = os.getenv('AWS_ACCESS_KEY_MONSTER')
 aws_secret_access_key = os.getenv('AWS_SECRET_KEY_MONSTER')
 
 # Define the API endpoint URL
-api_url = "https://nv6syh8w61.execute-api.eu-west-2.amazonaws.com/hello/hello"
+api_url = "https://qodlc1vxkk.execute-api.eu-west-2.amazonaws.com/"
 
 count = 0
-while count < 5:
+while count < 1:
     count += 1
     if aws_access_key_id is None or aws_secret_access_key is None:
         raise ValueError("AWS credentials not found in .env file")
@@ -29,7 +29,7 @@ while count < 5:
                         aws_secret_access_key=aws_secret_access_key,
                         region_name=aws_region)
 
-    lambda_function_name = 'arn:aws:lambda:eu-west-2:404544469985:function:hello'
+    lambda_function_name = 'arn:aws:lambda:eu-west-2:404544469985:function:monster_handler'
 
 
     # Invoke the Lambda function

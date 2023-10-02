@@ -12,7 +12,7 @@ aws_access_key_id = os.getenv('AWS_ACCESS_KEY_MONSTER')
 aws_secret_access_key = os.getenv('AWS_SECRET_KEY_MONSTER')
 
 # Define the API endpoint URL
-api_url = "https://qodlc1vxkk.execute-api.eu-west-2.amazonaws.com/"
+api_url = "https://4bw6mh4tx2.execute-api.eu-west-2.amazonaws.com/v1/test"
 
 count = 0
 while count < 1:

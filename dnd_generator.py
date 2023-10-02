@@ -4,7 +4,7 @@ import random
 import time
 import json
 import datetime
-from threading import Thread
+from confluent_kafka import Producer
 
 # geo libraries and certificate ssl stuff
 import certifi
@@ -103,13 +103,22 @@ def create_monster_damage(continent, file=file, continent_dict=continent_dict):
     return monster_name, damage
 
 
+# Kafka error handling:
+
+def delivery_report(err, msg):
+    if err is not None:
+        print('Message delivery failed: {}'.format(err))
+    else:
+        print('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
+
+
 ###
 
 # Emulate a continuous stream of monsters being generated.
 
 
 
-def execute_loop(iterations):
+def execute_loop(iterations, producer):
     for i in range(iterations):
         # time delay
         time.sleep(2)
@@ -167,7 +176,23 @@ def execute_loop(iterations):
         }
         # jsonify
         json_string = json.dumps(data)
+        
+        
         print(json_string)
         # print(f"--- {percent_loss} ---")
 
-        return json_string
+        producer.produce('monster_damage', json_string, callback=delivery_report)
+        producer.poll(0)
+
+    producer.flush()
+
+
+# Configuration for Kafka Producer
+conf = {
+    'bootstrap.servers': 'b-1.monstercluster1.6xql65.c3.kafka.eu-west-2.amazonaws.com',  # Replace with your broker URLs
+}
+
+producer = Producer(conf)
+
+# Now call the modified execute_loop
+execute_loop(1000, producer)

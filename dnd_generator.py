@@ -118,10 +118,10 @@ def delivery_report(err, msg):
 
 
 
-def execute_loop(iterations, producer):
+def execute_loop(iterations, producer, delay):
     for i in range(iterations):
         # time delay
-        time.sleep(2)
+        time.sleep(delay)
         
         # unpack country info
         country, continent = get_continent()
@@ -181,7 +181,7 @@ def execute_loop(iterations, producer):
         print(json_string)
         # print(f"--- {percent_loss} ---")
 
-        producer.produce('monster_damage', json_string, callback=delivery_report)
+        producer.produce('monster-damage', json_string, callback=delivery_report)
         producer.poll(0)
 
     producer.flush()
@@ -189,10 +189,10 @@ def execute_loop(iterations, producer):
 
 # Configuration for Kafka Producer
 conf = {
-    'bootstrap.servers': 'b-1.monstercluster1.6xql65.c3.kafka.eu-west-2.amazonaws.com',  # Replace with your broker URLs
+    'bootstrap.servers': 'b-1.monstercluster1.6xql65.c3.kafka.eu-west-2.amazonaws.com:9092',  # Replace with your broker URLs
 }
 
 producer = Producer(conf)
 
 # Now call the modified execute_loop
-execute_loop(1000, producer)
+execute_loop(1000, producer, 3)

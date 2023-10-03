@@ -1,7 +1,7 @@
 from confluent_kafka import Consumer, KafkaError
 
 conf = {
-    'bootstrap.servers': 'b-1.monstercluster1.6xql65.c3.kafka.eu-west-2.amazonaws.com',  # Replace with your broker URLs
+    'bootstrap.servers': 'b-1.monstercluster1.6xql65.c3.kafka.eu-west-2.amazonaws.com:9092',  # Replace with your broker URLs
     'group.id': 'your_group_id',
     'auto.offset.reset': 'earliest',
 }
@@ -9,7 +9,7 @@ conf = {
 consumer = Consumer(conf)
 
 def consume_message():
-    consumer.subscribe(['monster_damage'])
+    consumer.subscribe(['monster-damage'])
     while True:
         msg = consumer.poll(1.0)
         if msg is None:

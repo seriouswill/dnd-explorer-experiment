@@ -1,2 +1,4 @@
 dnd-venv
 .env
+.terraform*
+terraform*

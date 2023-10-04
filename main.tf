@@ -18,14 +18,15 @@ resource "aws_instance" "msk_client" {
               sudo yum install -y python3
               sudo yum install -y java-1.8.0-openjdk-devel
               sudo yum install -y git
+              
+              # Install confluent-kafka for Python
+              pip3 install --user confluent-kafka
 
               # Download and extract Kafka
               wget https://downloads.apache.org/kafka/3.5.1/kafka_2.12-3.5.1.tgz -P /home/ec2-user/
               tar -xzf /home/ec2-user/kafka_2.12-3.5.1.tgz -C /home/ec2-user/
               
-              # Install confluent-kafka for Python
-              pip3 install --user confluent-kafka
-              
+
               # Clone the git repository
               git clone ${var.repo_url} /home/ec2-user/repo-name
               EOF

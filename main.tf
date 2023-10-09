@@ -4,14 +4,20 @@ variable "repo_url" {
   default     = "https://github.com/your-default-repo.git"  # Optional default value
 }
 
+variable "key_name" {
+  description = "Name of key for AWS access"
+  type        = string
+}
+
 provider "aws" {
   region = "eu-west-2"
 }
 
 resource "aws_instance" "msk_client" {
   ami             = "ami-0b2287cff5d6be10f" # Amazon Linux 2 AMI (HVM) - Kernel 5.10, SSD Volume Type
-  instance_type   = "t2.micro"
-  key_name        = "wills-monster-server-keys" # Ensure you have this key pair in AWS
+  instance_type   = "t2.small"
+  vpc_security_group_ids = ["sg-097cc69c4394149d2"] # Use the existing security group ID
+  key_name        = "${var.key_name}" # Ensure you have this key pair in AWS
   user_data = <<-EOF
               #!/bin/bash
               sudo yum update -y
@@ -22,18 +28,16 @@ resource "aws_instance" "msk_client" {
               # Install confluent-kafka for Python
               pip3 install --user confluent-kafka
 
-              # Download and extract Kafka
-              wget https://downloads.apache.org/kafka/3.5.1/kafka_2.12-3.5.1.tgz -P /home/ec2-user/
-              tar -xzf /home/ec2-user/kafka_2.12-3.5.1.tgz -C /home/ec2-user/
+             
               
 
               # Clone the git repository
-              git clone ${var.repo_url} /home/ec2-user/repo-name
+              git clone ${var.repo_url} /home/ec2-user/
               EOF
 
 
   tags = {
-    Name = "MSKClientInstance"
+    Name = "WillsMonsterEC2"
   }
 
     

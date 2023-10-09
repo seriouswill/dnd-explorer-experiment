@@ -1,13 +1,18 @@
+
 from confluent_kafka import Producer
 import json
 import time
 import random
 
+# Define the callback function to handle delivery reports
+def delivery_report(err, msg):
+    if err is not None:
+        print('Message delivery failed: {}'.format(err))
+    else:
+        print('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
+
 # Define the producer
-producer = Producer(
-    bootstrap_servers='b-1.monstercluster1.6xql65.c3.kafka.eu-west-2.amazonaws.com:9092',
-    value_serializer=lambda v: json.dumps(v).encode('utf-8')
-)
+p = Producer({'bootstrap.servers': 'b-1.monstercluster1.6xql65.c3.kafka.eu-west-2.amazonaws.com:9092'})
 
 # Sample store locations and product IDs for our simulation
 store_locations = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'San Antonio']
@@ -23,7 +28,13 @@ while True:
     }
 
     # Send the transaction to our Kafka topic
-    producer.send('retail_transactions', value=transaction)
+    p.produce('retail_transactions', key=str(transaction["product_ID"]), value=json.dumps(transaction), callback=delivery_report)
+
+    # Wait for any outstanding messages to be delivered and delivery reports to be received
+    p.poll(0)
 
     # Sleep for a random time between 1 to 3 seconds to simulate real-time transaction arrival
     time.sleep(random.uniform(1, 3))
+
+# Wait for any outstanding messages to be delivered and delivery reports to be received
+p.flush()

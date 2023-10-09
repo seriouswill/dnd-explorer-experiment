@@ -1,7 +1,10 @@
-variable "repo_url" {
-  description = "The URL of the git repository to clone"
+variable "gh_user" {
+  description = "Name of GitHub user to access the url"
   type        = string
-  default     = "https://github.com/your-default-repo.git"  # Optional default value
+}
+
+locals {
+  repo_url = "https://github.com/${var.gh_user}/dnd-explorer-experiment.git"
 }
 
 variable "key_name" {
@@ -32,7 +35,7 @@ resource "aws_instance" "msk_client" {
               
 
               # Clone the git repository
-              git clone ${var.repo_url} /home/ec2-user/
+              git clone ${local.repo_url} /home/ec2-user/dnd-explorer-experiment
               EOF
 
 

@@ -5,7 +5,7 @@ import random
 
 # Define the producer
 producer = KafkaProducer(
-    bootstrap_servers='localhost:9092',
+    bootstrap_servers='b-1.monstercluster1.6xql65.c3.kafka.eu-west-2.amazonaws.com:9092',
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 

@@ -169,6 +169,7 @@ def execute_loop(iterations, producer, delay):
             "country": country,
             "population": population,
             "monster_name": monster_name.upper(),
+            'health': random.randint(100, 50000), 
             "damage": damage,
             "updated_population": int(updated_population),
             "percent_loss": percent_loss,

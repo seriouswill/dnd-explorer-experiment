@@ -36,30 +36,33 @@ def combat_monster(monster_data, chosen_hero):
     continent_modifier = CONTINENT_MODIFIERS.get(monster_data["continent"], "INT")
     hero_modifier = HERO_SPECIALTIES[chosen_hero]
     
+    health_reduction = random.randint(50, 150)  # Example random reduction
+
     if continent_modifier == hero_modifier:
         # The chosen hero's specialty matches the continent's modifier.
-        # This results in a high reduction in monster's damage.
         reduction_percentage = random.uniform(0.7, 1)
     else:
-        # Partial reduction in damage if the hero's specialty doesn't perfectly match.
         reduction_percentage = random.uniform(0.3, 0.6)
     
     reduced_damage = monster_data["damage"] * reduction_percentage
-    print(f"The {chosen_hero} countered the {monster_data['monster_name']} in {monster_data['country']} and reduced its damage from {monster_data['damage']} to {int(reduced_damage)}!\n")
-    return reduced_damage
+    monster_data["health"] -= health_reduction
+    
+    if monster_data["health"] <= 0:
+        print(f"The {chosen_hero} defeated the {monster_data['monster_name']} in {monster_data['country']} before it could cause any damage!")
+    else:
+        print(f"The {chosen_hero} countered the {monster_data['monster_name']} in {monster_data['country']} and reduced its damage from {monster_data['damage']} to {int(reduced_damage)}!\n")
 
 def main():
     chosen_hero = select_hero_specialty()
 
     # Configuration for Kafka Consumer
     conf = {
-        'bootstrap.servers': 'b-1.monstercluster1.6xql65.c3.kafka.eu-west-2.amazonaws.com:9092',  # Replace with your broker URLs
+        'bootstrap.servers': 'b-1.monstercluster1.6xql65.c3.kafka.eu-west-2.amazonaws.com:9092',
         'group.id': 'hero-group',
         'auto.offset.reset': 'earliest'
     }
 
     consumer = Consumer(conf)
-
     consumer.subscribe(['monster-damage'])
 
     try:

@@ -10,6 +10,7 @@ from confluent_kafka import Producer
 import certifi
 import ssl
 import geopy.geocoders
+from geopy.exc import GeocoderTimedOut
 from geopy.geocoders import Nominatim
 
 file = pd.read_csv("./dnd_monsters.csv")
@@ -30,7 +31,7 @@ file = file.fillna(random.randint(0, 5))
 file['size_multiplier'] = file['size'].map(size_dict)
 
 # D20 dice roll
-D20 = random.randint(0, 20)
+D20 = random.randint(1, 20)
 
 # get population and continent info ( i combined two csvs )
 pop_file = pd.read_csv("./population_by_country_2020.csv")
@@ -55,28 +56,31 @@ ctx = ssl.create_default_context(cafile=certifi.where())
 geopy.geocoders.options.default_ssl_context = ctx
 geolocator = Nominatim(user_agent="my_geocoder")
 
-def get_continent(geolocator=geolocator):
 
-    land = False
-    while land != True:
+
+def get_continent(geolocator=geolocator):
+    while True:
         lat = random.randint(-90, 90)
         long = random.randint(-180, 180)
 
-        location = geolocator.reverse((lat, long), language='en')
         try:
-            country = location.raw['address']['country']
-            land = True
-            # print(f"Country: {country}")
+            location = geolocator.reverse((lat, long), language='en')
+            if location:
+                country = location.raw['address']['country']
+                continent_row = cc_file.loc[cc_file['Country'] == country]
+                continent = continent_row['Continent'].to_list()[0]
+                return country, continent
+            else:
+                print("Monster drowned in the briny depths!")
 
-            continent_row = cc_file.loc[cc_file['Country']==country]
+        except GeocoderTimedOut:
+            print("Geocoder service timed out, trying again.")
+            # Optionally, you can add a short sleep here to prevent immediate retry
+            # time.sleep(1)
+        except Exception as e:
+            print(f"An error occurred: {e}, trying again.")
 
-            continent = continent_row['Continent'].to_list()[0]
-            # print(f"Continent: {continent}")
-        except:
-            print("Monster drowned in the briny depths of the ocean.")
-            land = False
 
-    return country, continent
 
 
 ###
@@ -95,8 +99,9 @@ continent_dict = {cc_file['Continent'].unique()[i]: mod[i] for i in range(len(mo
 def create_monster_damage(continent, file=file, continent_dict=continent_dict):
     rand_monster = file.sample()
     monster_name = rand_monster['name'].iloc[0]
+    flat_damage = 666
 
-    damage = 1000 * D20 * rand_monster['size_multiplier'] * rand_monster[continent_dict[continent]]
+    damage = flat_damage * D20 * rand_monster['size_multiplier'] * rand_monster[continent_dict[continent]]
 
     damage = int(damage.iloc[0])
 
@@ -127,7 +132,7 @@ def execute_loop(iterations, producer, delay):
         country, continent = get_continent()
         # country, continent = "Canada", "North America"
 
-        # Check if the country exists in merged_df
+	# Check if the country exists in merged_df
         country_df = merged_df[merged_df['Country'] == country]
         if country_df.empty:
             print(f"Country not found in DataFrame: {country}")
@@ -175,7 +180,6 @@ def execute_loop(iterations, producer, delay):
             "country": country,
             "population": population,
             "monster_name": monster_name.upper(),
-            'health': random.randint(100, 50000), 
             "damage": damage,
             "updated_population": int(updated_population),
             "percent_loss": percent_loss,

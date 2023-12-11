@@ -25,7 +25,6 @@ resource "aws_msk_cluster" "monster_cluster" {
   
   broker_node_group_info {
     instance_type   = "kafka.t3.small"
-    ebs_volume_size = 100
     client_subnets = [
       "subnet-a41657de", 
       "subnet-7213161b", 

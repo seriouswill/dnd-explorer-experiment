@@ -127,6 +127,12 @@ def execute_loop(iterations, producer, delay):
         country, continent = get_continent()
         # country, continent = "Canada", "North America"
 
+        # Check if the country exists in merged_df
+        country_df = merged_df[merged_df['Country'] == country]
+        if country_df.empty:
+            print(f"Country not found in DataFrame: {country}")
+            continue  # Skip this iteration
+
         # unpack monster info
         monster_name, damage = create_monster_damage(continent)
 
